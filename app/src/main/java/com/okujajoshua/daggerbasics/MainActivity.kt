@@ -23,10 +23,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var search: Button
 
     @Inject
-    lateinit var api: Api
+    lateinit var factory: MainViewModelFactory
 
     private lateinit var viewModel: MainViewModel
-    private lateinit var factory: MainViewModelFactory
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,8 +42,6 @@ class MainActivity : AppCompatActivity() {
 //            nameTextView.text = newName
 //        }
 
-
-        factory = MainViewModelFactory(api)
         viewModel = ViewModelProvider(this,factory).get(MainViewModel::class.java)
 
         viewModel.fullName.observe(this, Observer { name ->
@@ -56,21 +53,8 @@ class MainActivity : AppCompatActivity() {
     override fun onStart() {
         super.onStart()
         search.setOnClickListener {
-            searchUser(username.text.toString())
+            viewModel.searchUser(username.text.toString())
         }
     }
 
-    private fun searchUser(username: String) {
-        api.getUser(username).enqueue(object : Callback<User> {
-            override fun onResponse(call: Call<User>, response: Response<User>) {
-                response.body()?.let { user ->
-                    fullName.text = user.name
-                }
-            }
-
-            override fun onFailure(call: Call<User>, t: Throwable) {
-                Log.e("MainActivity", "onFailure: ", t)
-            }
-        })
-    }
 }
